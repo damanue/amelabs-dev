@@ -52,6 +52,13 @@ if ! command -v dotnet &> /dev/null; then
     exit 1
 fi
 
+# Update App Service runtime to .NET 10 (Terraform provider only supports up to 8.0)
+echo -e "${CYAN}Updating App Service .NET runtime to 10.0...${NC}"
+az webapp config set \
+    --resource-group $RESOURCE_GROUP \
+    --name $DOTNET_WEBAPP_NAME \
+    --linux-fx-version "DOTNETCORE|10.0"
+
 # Build and publish the application
 echo -e "${CYAN}Building .NET application...${NC}"
 if dotnet publish -c Release -o ./publish; then
