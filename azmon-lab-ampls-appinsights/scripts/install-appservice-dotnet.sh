@@ -52,6 +52,19 @@ if ! command -v dotnet &> /dev/null; then
     exit 1
 fi
 
+# Patch the target framework to match installed SDK
+echo -e "${CYAN}Checking and patching target framework...${NC}"
+SDK_MAJOR_VERSION=$(dotnet --version | cut -d. -f1)
+echo -e "${CYAN}Detected .NET SDK major version: ${SDK_MAJOR_VERSION}${NC}"
+
+# Find and update any .csproj files targeting a newer framework
+for csproj in $(find . -name "*.csproj"); do
+    if grep -q "net10.0\|net11.0\|net12.0" "$csproj"; then
+        echo -e "${YELLOW}Patching $csproj to target net${SDK_MAJOR_VERSION}.0${NC}"
+        sed -i "s/<TargetFramework>net[0-9]*\.0<\/TargetFramework>/<TargetFramework>net${SDK_MAJOR_VERSION}.0<\/TargetFramework>/g" "$csproj"
+    fi
+done
+
 # Build and publish the application
 echo -e "${CYAN}Building .NET application...${NC}"
 if dotnet publish -c Release -o ./publish; then
