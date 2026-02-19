@@ -52,19 +52,6 @@ if ! command -v dotnet &> /dev/null; then
     exit 1
 fi
 
-# Patch the target framework to match installed SDK
-echo -e "${CYAN}Checking and patching target framework...${NC}"
-SDK_MAJOR_VERSION=$(dotnet --version | cut -d. -f1)
-echo -e "${CYAN}Detected .NET SDK major version: ${SDK_MAJOR_VERSION}${NC}"
-
-# Find and update any .csproj files targeting a newer framework
-for csproj in $(find . -name "*.csproj"); do
-    if grep -q "net10.0\|net11.0\|net12.0" "$csproj"; then
-        echo -e "${YELLOW}Patching $csproj to target net${SDK_MAJOR_VERSION}.0${NC}"
-        sed -i "s/<TargetFramework>net[0-9]*\.0<\/TargetFramework>/<TargetFramework>net${SDK_MAJOR_VERSION}.0<\/TargetFramework>/g" "$csproj"
-    fi
-done
-
 # Build and publish the application
 echo -e "${CYAN}Building .NET application...${NC}"
 if dotnet publish -c Release -o ./publish; then
@@ -102,15 +89,15 @@ if dotnet publish -c Release -o ./publish; then
             exit 1
         fi
         
-        # Configure startup file
-        echo -e "${CYAN}Configuring startup file...${NC}"
+        # Clear any custom startup command - let Azure auto-detect the entry point
+        echo -e "${CYAN}Clearing any custom startup command (using auto-detection)...${NC}"
         if az webapp config set \
             --resource-group $RESOURCE_GROUP \
             --name $DOTNET_WEBAPP_NAME \
-            --startup-file MyAzureWebApp; then
-            echo -e "${GREEN}Startup file configured successfully${NC}"
+            --startup-file ""; then
+            echo -e "${GREEN}Startup configuration cleared - using auto-detection${NC}"
         else
-            echo -e "${YELLOW}Warning: Failed to configure startup file${NC}"
+            echo -e "${YELLOW}Warning: Failed to clear startup configuration${NC}"
         fi
         
         # Restart the web app
