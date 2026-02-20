@@ -50,7 +50,7 @@ variable "integration_subnet_id" {
 # Runtimes
 variable "dotnet_version" {
   type    = string
-  default = "8.0"  # Highest supported by azurerm provider; script updates to 10.0
+  default = "8.0"
 }
 
 variable "java_version" {

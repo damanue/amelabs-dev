@@ -52,12 +52,26 @@ if ! command -v dotnet &> /dev/null; then
     exit 1
 fi
 
-# Update App Service runtime to .NET 10 (Terraform provider only supports up to 8.0)
-echo -e "${CYAN}Updating App Service .NET runtime to 10.0...${NC}"
+# Detect SDK version and patch sample to match
+echo -e "${CYAN}Checking and patching target framework...${NC}"
+SDK_MAJOR_VERSION=$(dotnet --version | cut -d. -f1)
+echo -e "${CYAN}Detected .NET SDK major version: ${SDK_MAJOR_VERSION}${NC}"
+
+# Find and update any .csproj files targeting a newer framework
+for csproj in $(find . -name "*.csproj"); do
+    CURRENT_TFM=$(grep -oP '<TargetFramework>net\K[0-9]+' "$csproj" || echo "")
+    if [ -n "$CURRENT_TFM" ] && [ "$CURRENT_TFM" -gt "$SDK_MAJOR_VERSION" ]; then
+        echo -e "${YELLOW}Patching $csproj from net${CURRENT_TFM}.0 to net${SDK_MAJOR_VERSION}.0${NC}"
+        sed -i "s/<TargetFramework>net[0-9]*\.0<\/TargetFramework>/<TargetFramework>net${SDK_MAJOR_VERSION}.0<\/TargetFramework>/g" "$csproj"
+    fi
+done
+
+# Update App Service runtime to match SDK version
+echo -e "${CYAN}Updating App Service .NET runtime to ${SDK_MAJOR_VERSION}.0...${NC}"
 az webapp config set \
     --resource-group $RESOURCE_GROUP \
     --name $DOTNET_WEBAPP_NAME \
-    --linux-fx-version "DOTNETCORE|10.0"
+    --linux-fx-version "DOTNETCORE|${SDK_MAJOR_VERSION}.0"
 
 # Build and publish the application
 echo -e "${CYAN}Building .NET application...${NC}"
