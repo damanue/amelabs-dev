@@ -12,7 +12,7 @@ variable "resource_group_name" {
 
 variable "plan_sku" {
   type    = string
-  default = "S1"
+  default = "P0v3"
 }
 
 # Names (optional)
