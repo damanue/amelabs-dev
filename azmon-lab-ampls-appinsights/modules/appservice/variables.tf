@@ -82,8 +82,8 @@ variable "node_version" {
 
 variable "node_app_command_line" {
   type        = string
-  default     = "npm start"
-  description = "Custom startup command for the Node.js Web App"
+  default     = ""
+  description = "Custom startup command for the Node.js Web App. Leave empty so Oryx auto-detects and runs 'npm start' from /home/site/wwwroot. Setting an explicit command (e.g. 'npm start') causes it to run from '/', producing ENOENT for /package.json."
 }
 
 
