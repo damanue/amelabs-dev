@@ -68,7 +68,7 @@ WORKSPACE_NAME="azmon-workspace"
 
 # Register necessary Azure providers
 echo -e "${CYAN}Registering Azure providers...${NC}"
-for ns in Microsoft.Insights Microsoft.OperationalInsights Microsoft.Monitor Microsoft.Security Microsoft.Compute Microsoft.SecurityInsights Microsoft.Dashboard; do
+for ns in Microsoft.Insights Microsoft.OperationalInsights Microsoft.Monitor Microsoft.Security Microsoft.Compute Microsoft.SecurityInsights Microsoft.Dashboard Microsoft.AlertsManagement; do
   register_provider "$ns"
 done
 
