@@ -93,6 +93,8 @@ ALLOWED_REGIONS=(
   "centralus"
   "eastasia"
   "francecentral"
+  "japanwest"
+  "koreacentral"
   "norwayeast"
   "northeurope"
   "southeastasia"
